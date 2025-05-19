@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from database import Base, engine
 
 # from routes import PostRoute
-from routers import PostRoute
+from routers import DisasterRoute
 import logging
 from contextlib import asynccontextmanager
 
@@ -54,4 +54,5 @@ class FilterParams(BaseModel):
     tags: list[str] = []
 
 
-app.include_router(PostRoute.router, prefix="/api/v1", tags=["Posts"])
+# app.include_router(PostRoute.router, prefix="/api/v1", tags=["Posts"])
+app.include_router(DisasterRoute.router, prefix="/api/v1", tags=["Disasters"])
