@@ -21,29 +21,31 @@ class Post(Base):
     __tablename__ = "Posts"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    avatar_url = Column(Text)
     name = Column(String, nullable=False)
     created_at = Column(
         String, nullable=False, default=lambda: datetime.utcnow().isoformat()
     )
-    description = Column(Text)
-    location = Column(Text)
-    image_url = Column(Text)
+    description = Column(Text, nullable=True)
+    location = Column(Text, nullable=True)
 
 
 # Pydantic model for request body (creating a new post)
 class PostCreate(BaseModel):
-    avatar_url: str | None = None
     name: str
     description: str | None = None
     location: str | None = None
-    image_url: str | None = None
 
 
 # Pydantic model for response (reading a post)
-class PostResponse(PostCreate):
+class PostResponse(BaseModel):
     id: int
+    name: str
     created_at: str
+    description: str | None = None
+    location: str | None = None
+
+    class Config:
+        from_attributes = True
 
 
 router = APIRouter()
@@ -52,25 +54,40 @@ router = APIRouter()
 @router.get("/posts/", response_model=list[PostResponse])
 async def read_posts(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Post))
-    posts = result.scalars().all()
-    return posts
+    posts_db = result.scalars().all()
+    response_posts = []
+    for post_db_item in posts_db:
+        response_posts.append(
+            PostResponse(
+                id=post_db_item.id,
+                name=post_db_item.name,
+                created_at=post_db_item.created_at,
+                description=post_db_item.description,
+                location=post_db_item.location,
+            )
+        )
+    return response_posts
 
 
 @router.post("/posts/", response_model=PostResponse, status_code=201)
-async def create_post(post: PostCreate, db: AsyncSession = Depends(get_db)):
-    new_post_data = post.model_dump()
-    # The database schema has created_at with a default CURRENT_TIMESTAMP,
-    # and the SQLAlchemy model also has a default.
-    # If we want to ensure created_at is set by the application:
-    new_post_data["created_at"] = datetime.utcnow().isoformat()
-
-    stmt = insert(Post).values(**new_post_data)
-    result = await db.execute(stmt)
+async def create_post(
+    post: PostCreate,  # Changed to accept PostCreate model as request body
+    db: AsyncSession = Depends(get_db),
+):
+    new_post_db = Post(
+        name=post.name,
+        description=post.description,
+        location=post.location,
+        created_at=datetime.utcnow().isoformat(),
+    )
+    db.add(new_post_db)
     await db.commit()
-    created_post_id = result.inserted_primary_key[0]
+    await db.refresh(new_post_db)
 
-    # Fetch the created post to return it
-    created_post = await db.get(Post, created_post_id)
-    if not created_post:
-        raise HTTPException(status_code=404, detail="Post not found after creation")
-    return created_post
+    return PostResponse(
+        id=new_post_db.id,
+        name=new_post_db.name,
+        created_at=new_post_db.created_at,
+        description=new_post_db.description,
+        location=new_post_db.location,
+    )
