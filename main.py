@@ -5,8 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from database import Base, engine
 
-# from routes import CategoryRoute, CustomerRoute, EmployeeRoute
-# from routers import user_route, tasks_route
+# from routes import PostRoute
+from routers import PostRoute
 import logging
 from contextlib import asynccontextmanager
 
@@ -54,5 +54,4 @@ class FilterParams(BaseModel):
     tags: list[str] = []
 
 
-# app.include_router(user_route.router, prefix="/api/v1", tags=["Users"])
-# app.include_router(tasks_route.router, prefix="/api/v1", tags=["Tasks"])
+app.include_router(PostRoute.router, prefix="/api/v1", tags=["Posts"])
