@@ -7,13 +7,11 @@ import sys
 import os
 from typing import List
 
-# Add the parent directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from database import get_db, Base
 
 
-# SQLAlchemy model for ThienTai (Disasters)
 class ThienTai(Base):
     __tablename__ = "ThienTai"
 
@@ -23,7 +21,6 @@ class ThienTai(Base):
     actions = relationship("Action", back_populates="thien_tai", lazy="selectin")
 
 
-# SQLAlchemy model for Actions
 class Action(Base):
     __tablename__ = "Actions"
 
@@ -37,7 +34,6 @@ class Action(Base):
     thien_tai = relationship("ThienTai", back_populates="actions")
 
 
-# Pydantic model for Action response
 class ActionResponse(BaseModel):
     action_id: int
     thien_tai_id: int
@@ -48,7 +44,14 @@ class ActionResponse(BaseModel):
         from_attributes = True
 
 
-# Pydantic model for ThienTai response
+class ThienTaiCreate(BaseModel):
+    name: str
+
+
+class ThienTaiUpdate(BaseModel):
+    name: str
+
+
 class ThienTaiResponse(BaseModel):
     id: int
     name: str
@@ -79,3 +82,41 @@ async def read_thien_tai_by_id(thien_tai_id: int, db: AsyncSession = Depends(get
     if thien_tai is None:
         raise HTTPException(status_code=404, detail="ThienTai not found")
     return thien_tai
+
+
+@router.post("/thientai/", response_model=ThienTaiResponse)
+async def create_thien_tai(
+    thien_tai: ThienTaiCreate, db: AsyncSession = Depends(get_db)
+):
+    db_thien_tai = ThienTai(name=thien_tai.name)
+    db.add(db_thien_tai)
+    await db.commit()
+    await db.refresh(db_thien_tai)
+    return db_thien_tai
+
+
+@router.put("/thientai/{thien_tai_id}", response_model=ThienTaiResponse)
+async def update_thien_tai(
+    thien_tai_id: int, thien_tai: ThienTaiUpdate, db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(select(ThienTai).where(ThienTai.id == thien_tai_id))
+    db_thien_tai = result.scalars().first()
+    if db_thien_tai is None:
+        raise HTTPException(status_code=404, detail="ThienTai not found")
+
+    db_thien_tai.name = thien_tai.name
+    await db.commit()
+    await db.refresh(db_thien_tai)
+    return db_thien_tai
+
+
+@router.delete("/thientai/{thien_tai_id}", response_model=ThienTaiResponse)
+async def delete_thien_tai(thien_tai_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(ThienTai).where(ThienTai.id == thien_tai_id))
+    db_thien_tai = result.scalars().first()
+    if db_thien_tai is None:
+        raise HTTPException(status_code=404, detail="ThienTai not found")
+
+    await db.delete(db_thien_tai)
+    await db.commit()
+    return db_thien_tai
