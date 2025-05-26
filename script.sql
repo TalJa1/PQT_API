@@ -1,40 +1,26 @@
--- Enable foreign key support
 PRAGMA foreign_keys = ON;
 
--- Begin a transaction for atomic insertion
 BEGIN TRANSACTION;
 
--- --------------------------------------
--- TABLE: ThienTai (Disasters)
--- --------------------------------------
 CREATE TABLE IF NOT EXISTS ThienTai (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL UNIQUE
 );
 
--- --------------------------------------
--- TABLE: Actions
--- --------------------------------------
 CREATE TABLE IF NOT EXISTS Actions (
     action_id INTEGER PRIMARY KEY AUTOINCREMENT,
     thien_tai_id INTEGER NOT NULL,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    FOREIGN KEY (thien_tai_id) REFERENCES ThienTai(id) ON DELETE CASCADE -- If a disaster is deleted, its actions are also deleted
+    FOREIGN KEY (thien_tai_id) REFERENCES ThienTai(id) ON DELETE CASCADE
 );
 
--- --------------------------------------
--- INSERT DEFAULT DATA
--- --------------------------------------
-
--- ThienTai Data
 INSERT INTO ThienTai (id, name) VALUES (1, 'Bão');
 INSERT INTO ThienTai (id, name) VALUES (2, 'Lũ');
 INSERT INTO ThienTai (id, name) VALUES (3, 'Cháy rừng');
 INSERT INTO ThienTai (id, name) VALUES (4, 'Sạt lở');
 INSERT INTO ThienTai (id, name) VALUES (5, 'Hạn hán');
 
--- Actions for 'Bão' (thien_tai_id = 1)
 INSERT INTO Actions (thien_tai_id, title, description) VALUES
     (1, 'Theo dõi dự báo thời tiết', 'Cập nhật thường xuyên các bản tin dự báo thời tiết để nắm bắt thông tin về bão.'),
     (1, 'Gia cố nhà cửa', 'Chằng chống mái tôn, cửa ra vào và cửa sổ để tránh bị tốc mái, hư hỏng.'),
@@ -47,7 +33,6 @@ INSERT INTO Actions (thien_tai_id, title, description) VALUES
     (1, 'Liên hệ cứu hộ', 'Thông báo ngay cho chính quyền địa phương nếu cần sự hỗ trợ cứu hộ.'),
     (1, 'Khắc phục sau bão', 'Kiểm tra và tiến hành sửa chữa những thiệt hại sau khi bão tan.');
 
--- Actions for 'Lũ' (thien_tai_id = 2)
 INSERT INTO Actions (thien_tai_id, title, description) VALUES
     (2, 'Cập nhật cảnh báo lũ', 'Theo dõi sát sao các thông tin cảnh báo lũ từ cơ quan chức năng.'),
     (2, 'Sơ tán khẩn cấp', 'Di chuyển người và tài sản đến vùng đất cao, an toàn khi có lệnh hoặc nguy cơ lũ.'),
@@ -60,7 +45,6 @@ INSERT INTO Actions (thien_tai_id, title, description) VALUES
     (2, 'Vệ sinh sau lũ', 'Kiểm tra và đảm bảo vệ sinh nguồn nước, thực phẩm sau khi lũ rút.'),
     (2, 'Ổn định cuộc sống', 'Tham gia vào công tác khôi phục nhà cửa và ổn định cuộc sống sau lũ.');
 
--- Actions for 'Cháy rừng' (thien_tai_id = 3)
 INSERT INTO Actions (thien_tai_id, title, description) VALUES
     (3, 'Nâng cao ý thức phòng cháy', 'Tuyên truyền và thực hiện nghiêm các quy định về phòng cháy chữa cháy rừng.'),
     (3, 'Không gây cháy', 'Tuyệt đối không đốt lửa, vứt tàn thuốc bừa bãi trong hoặc gần khu vực rừng.'),
@@ -73,7 +57,6 @@ INSERT INTO Actions (thien_tai_id, title, description) VALUES
     (3, 'Gọi cấp cứu khi bị thương', 'Liên hệ ngay với dịch vụ cấp cứu nếu có người bị thương do cháy.'),
     (3, 'Hợp tác khắc phục', 'Phối hợp với các lực lượng chức năng trong công tác chữa cháy và xử lý hậu quả.');
 
--- Actions for 'Sạt lở' (thien_tai_id = 4)
 INSERT INTO Actions (thien_tai_id, title, description) VALUES
     (4, 'Quan sát dấu hiệu sạt lở', 'Chú ý theo dõi các vết nứt trên đất, tường, hiện tượng cây nghiêng bất thường.'),
     (4, 'Sơ tán lập tức', 'Di chuyển ngay đến nơi an toàn khi phát hiện nguy cơ sạt lở.'),
@@ -86,7 +69,6 @@ INSERT INTO Actions (thien_tai_id, title, description) VALUES
     (4, 'Cảnh giác sạt lở thứ cấp', 'Đề phòng các đợt sạt lở tiếp theo sau mưa lớn kéo dài.'),
     (4, 'Hợp tác khắc phục hậu quả', 'Tham gia vào các hoạt động khắc phục hậu quả sạt lở do chính quyền tổ chức.');
 
--- Actions for 'Hạn hán' (thien_tai_id = 5)
 INSERT INTO Actions (thien_tai_id, title, description) VALUES
     (5, 'Tiết kiệm nước', 'Sử dụng nước một cách hợp lý và tiết kiệm trong sinh hoạt hàng ngày.'),
     (5, 'Tích trữ nước', 'Chủ động tích trữ nước sạch khi có điều kiện.'),
@@ -99,5 +81,4 @@ INSERT INTO Actions (thien_tai_id, title, description) VALUES
     (5, 'Hỗ trợ cộng đồng', 'Tham gia các hoạt động hỗ trợ người dân bị ảnh hưởng bởi hạn hán.'),
     (5, 'Áp dụng biện pháp chống hạn lâu dài', 'Tìm hiểu và thực hiện các giải pháp chống hạn bền vững.');
 
--- Commit the transaction
 COMMIT;
