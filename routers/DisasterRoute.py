@@ -1,64 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, Column, Integer, String, Text, ForeignKey
-from sqlalchemy.orm import relationship, selectinload
-from pydantic import BaseModel
-import sys
-import os
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from typing import List
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-from database import get_db, Base
-
-
-class ThienTai(Base):
-    __tablename__ = "ThienTai"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False, unique=True)
-
-    actions = relationship("Action", back_populates="thien_tai", lazy="selectin")
-
-
-class Action(Base):
-    __tablename__ = "Actions"
-
-    action_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    thien_tai_id = Column(
-        Integer, ForeignKey("ThienTai.id", ondelete="CASCADE"), nullable=False
-    )
-    title = Column(String, nullable=False)
-    description = Column(Text, nullable=False)
-
-    thien_tai = relationship("ThienTai", back_populates="actions")
-
-
-class ActionResponse(BaseModel):
-    action_id: int
-    thien_tai_id: int
-    title: str
-    description: str
-
-    class Config:
-        from_attributes = True
-
-
-class ThienTaiCreate(BaseModel):
-    name: str
-
-
-class ThienTaiUpdate(BaseModel):
-    name: str
-
-
-class ThienTaiResponse(BaseModel):
-    id: int
-    name: str
-    actions: List[ActionResponse] = []
-
-    class Config:
-        from_attributes = True
+from database import get_db
+from models.thientai_model import (
+    ThienTai,
+    ThienTaiCreate,
+    ThienTaiUpdate,
+    ThienTaiResponse,
+)
+from models.action_model import Action, ActionResponse
 
 
 router = APIRouter()

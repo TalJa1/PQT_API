@@ -14,18 +14,6 @@ from contextlib import asynccontextmanager
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(
-    title="FastAPI with SQLite For PQT app",
-    description="This is a very fancy project, with auto docs for the API",
-    version="0.1.0",
-)
-
-
-# Create the tables
-async def init_db():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
 
 # Lifespan event handler
 @asynccontextmanager
@@ -35,7 +23,18 @@ async def lifespan(app: FastAPI):
     # Add any cleanup code here if needed
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    title="FastAPI with SQLite For PQT app",
+    description="This is a very fancy project, with auto docs for the API",
+    version="0.1.0",
+    lifespan=lifespan,
+)
+
+
+# Create the tables
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
 app.add_middleware(
@@ -46,12 +45,11 @@ app.add_middleware(
     allow_credentials=True,
 )
 
+app.include_router(DisasterRoute.router, prefix="/api/v1", tags=["disasters"])
+
 
 class FilterParams(BaseModel):
     limit: int = Field(100, gt=0, le=100)
     offset: int = Field(0, ge=0)
     order_by: Literal["created_at", "updated_at"] = "created_at"
     tags: list[str] = []
-
-
-app.include_router(DisasterRoute.router, prefix="/api/v1", tags=["Disasters"])
