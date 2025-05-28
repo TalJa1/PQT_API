@@ -54,5 +54,4 @@ class FilterParams(BaseModel):
     tags: list[str] = []
 
 
-# app.include_router(PostRoute.router, prefix="/api/v1", tags=["Posts"])
 app.include_router(DisasterRoute.router, prefix="/api/v1", tags=["Disasters"])

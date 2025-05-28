@@ -1,6 +1,5 @@
-PRAGMA foreign_keys = ON;
-
-BEGIN TRANSACTION;
+DROP TABLE IF EXISTS Actions;
+DROP TABLE IF EXISTS ThienTai;
 
 CREATE TABLE IF NOT EXISTS ThienTai (
     id INTEGER PRIMARY KEY,
@@ -80,5 +79,3 @@ INSERT INTO Actions (thien_tai_id, title, description) VALUES
     (5, 'Báo cáo tình hình thiếu nước', 'Thông báo cho chính quyền địa phương về tình trạng thiếu nước.'),
     (5, 'Hỗ trợ cộng đồng', 'Tham gia các hoạt động hỗ trợ người dân bị ảnh hưởng bởi hạn hán.'),
     (5, 'Áp dụng biện pháp chống hạn lâu dài', 'Tìm hiểu và thực hiện các giải pháp chống hạn bền vững.');
-
-COMMIT;
