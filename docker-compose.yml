@@ -1,12 +1,11 @@
 version: '3.8'
 
 services:
-  app:
+  web:
     build: .
-    image: talja123/pqtapi:latest
     ports:
       - "8000:8000"
-    environment:
-      - DATABASE_URL=sqlite+aiosqlite:///./store.db
     volumes:
       - .:/app
+    environment:
+      - DATABASE_URL=sqlite:///./store.db
