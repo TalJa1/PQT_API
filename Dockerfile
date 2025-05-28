@@ -13,6 +13,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code to the working directory
 COPY . .
 
+# Set environment variable for the database URL
+ENV DATABASE_URL=sqlite:///./store.db
+
 # Expose port 8000 for the FastAPI application
 EXPOSE 8000
 
