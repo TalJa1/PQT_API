@@ -10,8 +10,6 @@ from models.thientai_model import (
     ThienTaiUpdate,
     ThienTaiResponse,
 )
-from models.action_model import Action, ActionResponse
-
 
 router = APIRouter()
 
